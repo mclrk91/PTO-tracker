@@ -3,7 +3,7 @@ import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, getDay, 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePTO } from '../contexts/PTOContext';
 import { isFlexFridayAvailable } from '../utils/ptoCalculations';
-import { GROUP1_FLEX_FRIDAYS, GROUP2_FLEX_FRIDAYS, BLACKOUT_FRIDAYS, COMPANY_HOLIDAYS, PAY_PERIOD_END_DATES, PAY_DATES } from '../data/constants';
+import { GROUP1_FLEX_FRIDAYS, GROUP2_FLEX_FRIDAYS, BLACKOUT_FRIDAYS, COMPANY_HOLIDAYS, US_HOLIDAYS_NON_UHG, PAY_PERIOD_END_DATES, PAY_DATES } from '../data/constants';
 
 export default function UnifiedCalendar() {
   const { absences } = usePTO();
@@ -80,6 +80,7 @@ export default function UnifiedCalendar() {
             const isG2Flex = GROUP2_FLEX_FRIDAYS.includes(dateStr) && !BLACKOUT_FRIDAYS.includes(dateStr);
             const isBlackout = BLACKOUT_FRIDAYS.includes(dateStr);
             const holiday = COMPANY_HOLIDAYS.find(h => h.date === dateStr);
+            const nonUhgHoliday = US_HOLIDAYS_NON_UHG.find(h => h.date === dateStr);
             const isPayday = PAY_DATES.includes(dateStr);
             const isAccrualDay = PAY_PERIOD_END_DATES.includes(dateStr);
 
@@ -88,7 +89,10 @@ export default function UnifiedCalendar() {
               events.push({ label: absence.reason || 'PTO', color: 'bg-danger-100 text-danger-600 border-danger-200' });
             }
             if (showHolidays && holiday) {
-              events.push({ label: holiday.name, color: 'bg-surface-light text-slate-300 border-surface-border' });
+              events.push({ label: `🏢 ${holiday.name}`, color: 'bg-surface-light text-slate-300 border-surface-border' });
+            }
+            if (showHolidays && nonUhgHoliday) {
+              events.push({ label: `${nonUhgHoliday.name} (not UHG)`, color: 'bg-surface-dark text-slate-500 border-surface-border-subtle' });
             }
             if (showFlex && isG1Flex) {
               const avail = isFlexFridayAvailable(dateStr, absences);

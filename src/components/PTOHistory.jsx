@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { Plus, Pencil, Trash2, X, Check, Filter } from 'lucide-react';
 import { usePTO } from '../contexts/PTOContext';
-import { assignPool } from '../utils/ptoCalculations';
+import { assignPool, calculateBalances } from '../utils/ptoCalculations';
 import { PTO_CONFIG } from '../data/constants';
 
 function AbsenceForm({ initial, onSave, onCancel }) {
@@ -99,14 +99,14 @@ export default function PTOHistory() {
       .sort((a, b) => b.date.localeCompare(a.date));
   }, [absences, filterPool, filterType]);
 
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const balances = useMemo(() => calculateBalances(absences, today), [absences, today]);
+
   const totals = useMemo(() => {
     const all = absences;
     return {
       totalHours: all.reduce((s, a) => s + a.hours, 0),
       totalDays: all.reduce((s, a) => s + a.hours, 0) / PTO_CONFIG.hoursPerDay,
-      granted: all.filter(a => a.pool === 'granted').reduce((s, a) => s + a.hours, 0),
-      purchased: all.filter(a => a.pool === 'purchased').reduce((s, a) => s + a.hours, 0),
-      floating: all.filter(a => a.pool === 'floating').reduce((s, a) => s + a.hours, 0),
       planned: all.filter(a => a.type === 'Planned').reduce((s, a) => s + a.hours, 0),
       unplanned: all.filter(a => a.type === 'Unplanned').reduce((s, a) => s + a.hours, 0),
     };
@@ -136,39 +136,38 @@ export default function PTOHistory() {
 
   return (
     <div className="space-y-4">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-surface rounded-xl border border-surface-border p-3 text-center">
-          <p className="text-2xl font-bold text-slate-100">{totals.totalHours}h</p>
-          <p className="text-xs text-slate-500">{totals.totalDays} days used</p>
-        </div>
-        <div className="bg-surface rounded-xl border border-surface-border p-3 text-center">
-          <p className="text-2xl font-bold text-primary-400">{totals.planned}h</p>
-          <p className="text-xs text-slate-500">Planned</p>
-        </div>
-        <div className="bg-surface rounded-xl border border-surface-border p-3 text-center">
-          <p className="text-2xl font-bold text-warning-600">{totals.unplanned}h</p>
-          <p className="text-xs text-slate-500">Unplanned</p>
-        </div>
-      </div>
-
-      {/* Pool Breakdown */}
-      <div className="bg-surface rounded-xl border border-surface-border p-4">
-        <h3 className="text-sm font-semibold text-slate-300 mb-2">📊 Usage by Pool</h3>
-        <div className="flex gap-4 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-primary-500" />
-            <span className="text-slate-300">Granted: {totals.granted}h</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-accent-500" />
-            <span className="text-slate-300">Purchased: {totals.purchased}h</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-3 h-3 rounded-full bg-success-500" />
-            <span className="text-slate-300">Floating: {totals.floating}h</span>
-          </div>
-        </div>
+      {/* Per-Pool Balance Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {[
+          { emoji: '⏰', label: 'PTO', pool: balances.granted, color: 'primary', barColor: 'bg-primary-500' },
+          { emoji: '💰', label: 'Purchased', pool: balances.purchased, color: 'accent', barColor: 'bg-accent-500' },
+          { emoji: '🎁', label: 'Floating', pool: balances.floating, color: 'success', barColor: 'bg-success-500' },
+          { emoji: '📊', label: 'Total', pool: balances.combined, color: 'slate', barColor: 'bg-slate-500' },
+        ].map(({ emoji, label, pool, color, barColor }) => {
+          const pct = pool.total > 0 ? (pool.used / pool.total) * 100 : 0;
+          return (
+            <div key={label} className="bg-surface rounded-xl border border-surface-border p-3">
+              <h4 className="text-xs font-semibold text-slate-400 mb-1">{emoji} {label}</h4>
+              <p className={`text-2xl font-bold ${color === 'primary' ? 'text-primary-400' : color === 'accent' ? 'text-accent-500' : color === 'success' ? 'text-success-600' : 'text-slate-200'}`}>
+                {pool.balance.toFixed(1)}h
+              </p>
+              <p className="text-[11px] text-slate-500 mb-2">remaining</p>
+              <div className="w-full bg-white/10 rounded-full h-1.5 mb-1.5">
+                <div className={`${barColor} h-1.5 rounded-full transition-all duration-500`}
+                  style={{ width: `${Math.min(100, pct)}%` }} />
+              </div>
+              <p className="text-[11px] text-slate-500">
+                {pool.used.toFixed(1)}h used of {pool.total.toFixed(1)}h
+              </p>
+              {label === 'Total' && (
+                <div className="mt-2 pt-2 border-t border-surface-border-subtle flex gap-3 text-[10px] text-slate-500">
+                  <span>{totals.planned}h planned</span>
+                  <span>{totals.unplanned}h unplanned</span>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Filters + Add Button */}

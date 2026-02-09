@@ -180,6 +180,13 @@ export const UPCOMING_PLANNED = [
   { dates: ['2026-04-03'], reason: 'Endometriosis Surgery Mayo Clinic' },
 ];
 
+// === Non-UHG US Holidays (observed but NOT company days off) ===
+export const US_HOLIDAYS_NON_UHG = [
+  { date: '2026-02-16', name: "Presidents' Day" },
+  { date: '2026-10-12', name: 'Columbus Day' },
+  { date: '2026-11-11', name: "Veterans Day" },
+];
+
 // === PTO Usage Order ===
 // IRS rule: Granted PTO (current balance including carryover + YTD accruals) must be
 // exhausted BEFORE Purchased PTO can be used. The current pay period's accrual must

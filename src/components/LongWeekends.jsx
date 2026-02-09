@@ -1,13 +1,104 @@
-import { useMemo } from 'react';
-import { format, parseISO } from 'date-fns';
-import { Sparkles, Calendar, Palmtree, Clock } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { format, parseISO, addDays, subDays, getDay, eachDayOfInterval } from 'date-fns';
 import { usePTO } from '../contexts/PTOContext';
 import { findLongWeekendOpportunities, calculateBalances } from '../utils/ptoCalculations';
-import { PTO_CONFIG } from '../data/constants';
+import { PTO_CONFIG, COMPANY_HOLIDAYS } from '../data/constants';
+
+function MiniCalendar({ opp }) {
+  // Find the holiday date from COMPANY_HOLIDAYS
+  const holidayEntry = COMPANY_HOLIDAYS.find(h => h.name === opp.holiday);
+  const holidayDate = holidayEntry ? holidayEntry.date : null;
+
+  // Collect all "off" dates: PTO dates + holiday date + find adjacent weekends
+  const ptoDates = new Set(opp.dates);
+  const offDates = new Set(opp.dates);
+  if (holidayDate) offDates.add(holidayDate);
+
+  // Find the full range of consecutive off days (including weekends)
+  const allDates = [...offDates].map(d => parseISO(d)).sort((a, b) => a - b);
+  let rangeStart = allDates[0];
+  let rangeEnd = allDates[allDates.length - 1];
+
+  // Expand to include adjacent weekends
+  // Expand backward: if rangeStart is Mon, include Sat+Sun before
+  while (getDay(subDays(rangeStart, 1)) === 0 || getDay(subDays(rangeStart, 1)) === 6) {
+    rangeStart = subDays(rangeStart, 1);
+  }
+  // Expand forward: if rangeEnd is Fri, include Sat+Sun after
+  while (getDay(addDays(rangeEnd, 1)) === 0 || getDay(addDays(rangeEnd, 1)) === 6) {
+    rangeEnd = addDays(rangeEnd, 1);
+  }
+
+  // Add one workday context on each side
+  const displayStart = subDays(rangeStart, 1);
+  const displayEnd = addDays(rangeEnd, 1);
+
+  const days = eachDayOfInterval({ start: displayStart, end: displayEnd });
+
+  // Count consecutive off days
+  const offSpan = eachDayOfInterval({ start: rangeStart, end: rangeEnd });
+  const offDayCount = offSpan.length;
+
+  // Build explanation parts
+  const parts = [];
+  offSpan.forEach(day => {
+    const dateStr = format(day, 'yyyy-MM-dd');
+    const dow = getDay(day);
+    const dayName = format(day, 'EEE');
+    if (dow === 0 || dow === 6) {
+      parts.push(`${dayName} (weekend)`);
+    } else if (holidayDate && dateStr === holidayDate) {
+      parts.push(`${dayName} (${opp.holiday})`);
+    } else if (ptoDates.has(dateStr)) {
+      parts.push(`${dayName} (PTO)`);
+    }
+  });
+
+  return (
+    <div className="mt-3 space-y-3">
+      {/* Day boxes */}
+      <div className="flex gap-1">
+        {days.map(day => {
+          const dateStr = format(day, 'yyyy-MM-dd');
+          const dow = getDay(day);
+          const isWeekend = dow === 0 || dow === 6;
+          const isHoliday = holidayDate && dateStr === holidayDate;
+          const isPTO = ptoDates.has(dateStr);
+
+          let bgColor = 'bg-surface-dark text-slate-600'; // normal workday
+          if (isPTO) bgColor = 'bg-primary-100 text-primary-400 border-primary-200';
+          else if (isHoliday) bgColor = 'bg-success-100 text-success-600 border-success-500/20';
+          else if (isWeekend) bgColor = 'bg-surface-light text-slate-400';
+
+          return (
+            <div key={dateStr} className={`flex-1 text-center rounded-lg py-2 px-1 border border-transparent ${bgColor}`}>
+              <div className="text-[10px] leading-none mb-1">{format(day, 'EEE')}</div>
+              <div className="text-sm font-bold leading-none">{format(day, 'd')}</div>
+              <div className="text-[9px] leading-none mt-1">{format(day, 'MMM')}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Legend */}
+      <div className="flex flex-wrap gap-3 text-[10px] text-slate-500">
+        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-primary-100 border border-primary-200" /> PTO day</span>
+        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-success-100 border border-success-500/20" /> Holiday</span>
+        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-surface-light" /> Weekend</span>
+      </div>
+
+      {/* Explanation */}
+      <p className="text-xs text-slate-400">
+        {parts.join(' + ')} = <span className="text-slate-200 font-medium">{offDayCount} consecutive days off</span> using only {opp.ptoDays} PTO day{opp.ptoDays > 1 ? 's' : ''} ({opp.ptoHours}h)
+      </p>
+    </div>
+  );
+}
 
 export default function LongWeekends() {
   const { absences, addScenario } = usePTO();
   const today = format(new Date(), 'yyyy-MM-dd');
+  const [expandedIndex, setExpandedIndex] = useState(null);
 
   const opportunities = useMemo(() => findLongWeekendOpportunities(absences), [absences]);
   const balances = useMemo(() => calculateBalances(absences, today), [absences, today]);
@@ -17,7 +108,8 @@ export default function LongWeekends() {
 
   const totalPTOForAll = opportunities.reduce((sum, o) => sum + o.ptoHours, 0);
 
-  const handleAddToPlanner = (opp) => {
+  const handleAddToPlanner = (e, opp) => {
+    e.stopPropagation();
     addScenario({
       name: opp.description,
       days: opp.dates.map(d => ({ date: d })),
@@ -27,8 +119,7 @@ export default function LongWeekends() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-          <Sparkles size={20} className="text-warning-500" />
+        <h2 className="text-lg font-bold text-slate-100">
           🏖️ Long Weekend Optimizer
         </h2>
         <p className="text-xs text-slate-400">
@@ -57,28 +148,42 @@ export default function LongWeekends() {
       {/* Holiday-based */}
       {holidayOpps.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
-            <Palmtree size={16} className="text-success-500" />
+          <h3 className="text-sm font-semibold text-slate-300 mb-2">
             🌴 Holiday Long Weekends
           </h3>
           <div className="space-y-2">
             {holidayOpps.map((opp, i) => (
-              <div key={i} className="bg-surface rounded-xl border border-surface-border p-3 flex items-center justify-between card-hover">
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-slate-200">{opp.description}</p>
-                  <div className="flex items-center gap-3 mt-1">
-                    <span className="text-xs text-slate-500 flex items-center gap-1">
-                      <Calendar size={10} /> {opp.type}
-                    </span>
-                    <span className="text-xs text-primary-400 flex items-center gap-1">
-                      <Clock size={10} /> {opp.ptoDays} PTO day{opp.ptoDays > 1 ? 's' : ''} ({opp.ptoHours}h)
+              <div key={i} className="bg-surface rounded-xl border border-surface-border overflow-hidden card-hover">
+                <div
+                  className="p-3 flex items-center justify-between cursor-pointer"
+                  onClick={() => setExpandedIndex(expandedIndex === i ? null : i)}
+                >
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-slate-200">{opp.description}</p>
+                    <div className="flex items-center gap-3 mt-1">
+                      <span className="text-xs text-slate-500">
+                        {opp.type}
+                      </span>
+                      <span className="text-xs text-primary-400">
+                        {opp.ptoDays} PTO day{opp.ptoDays > 1 ? 's' : ''} ({opp.ptoHours}h)
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button onClick={(e) => handleAddToPlanner(e, opp)}
+                      className="text-xs px-3 py-1.5 bg-primary-100 text-primary-700 rounded-lg hover:bg-primary-200 transition-colors whitespace-nowrap">
+                      Add to Planner
+                    </button>
+                    <span className={`text-slate-500 transition-transform ${expandedIndex === i ? 'rotate-90' : ''}`}>
+                      ▸
                     </span>
                   </div>
                 </div>
-                <button onClick={() => handleAddToPlanner(opp)}
-                  className="ml-3 text-xs px-3 py-1.5 bg-primary-100 text-primary-700 rounded-lg hover:bg-primary-200 transition-colors whitespace-nowrap">
-                  Add to Planner
-                </button>
+                {expandedIndex === i && (
+                  <div className="px-3 pb-3 border-t border-surface-border-subtle pt-3">
+                    <MiniCalendar opp={opp} />
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -88,8 +193,7 @@ export default function LongWeekends() {
       {/* Flex Friday combos */}
       {flexOpps.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold text-slate-300 mb-2 flex items-center gap-2">
-            <Calendar size={16} className="text-primary-500" />
+          <h3 className="text-sm font-semibold text-slate-300 mb-2">
             📅 Flex Friday + PTO Combos
           </h3>
           <p className="text-xs text-slate-500 mb-2">
@@ -103,7 +207,7 @@ export default function LongWeekends() {
                   <p className="text-sm font-medium text-slate-200">{opp.description}</p>
                   <span className="text-xs text-primary-400">{opp.ptoDays} PTO day ({opp.ptoHours}h)</span>
                 </div>
-                <button onClick={() => handleAddToPlanner(opp)}
+                <button onClick={(e) => handleAddToPlanner(e, opp)}
                   className="ml-3 text-xs px-3 py-1.5 bg-primary-100 text-primary-700 rounded-lg hover:bg-primary-200 transition-colors whitespace-nowrap">
                   Add to Planner
                 </button>
@@ -120,7 +224,7 @@ export default function LongWeekends() {
 
       {opportunities.length === 0 && (
         <div className="bg-surface rounded-xl border border-surface-border p-8 text-center">
-          <Sparkles size={40} className="text-slate-600 mx-auto mb-3" />
+          <p className="text-3xl mb-3">🏖️</p>
           <p className="text-sm text-slate-400">No long weekend opportunities found for the rest of the year.</p>
         </div>
       )}
