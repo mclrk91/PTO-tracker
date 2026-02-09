@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { LayoutDashboard, Calendar, History, FlaskConical, CalendarRange, Sparkles } from 'lucide-react';
+import { LayoutDashboard, Calendar, History, FlaskConical, CalendarRange, Sparkles, Settings2 } from 'lucide-react';
 import Dashboard from './components/Dashboard';
 import PTOHistory from './components/PTOHistory';
 import PTOPlanner from './components/PTOPlanner';
 import FlexFriday from './components/FlexFriday';
 import UnifiedCalendar from './components/UnifiedCalendar';
 import LongWeekends from './components/LongWeekends';
+import Settings from './components/Settings';
+import { usePTO } from './contexts/PTOContext';
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, shortLabel: 'Home' },
@@ -18,6 +20,7 @@ const TABS = [
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const { syncStatus } = usePTO();
 
   const ActiveComponent = {
     dashboard: Dashboard,
@@ -26,6 +29,7 @@ export default function App() {
     calendar: UnifiedCalendar,
     flex: FlexFriday,
     weekends: LongWeekends,
+    settings: Settings,
   }[activeTab];
 
   return (
@@ -38,9 +42,17 @@ export default function App() {
             <p className="text-primary-200 text-xs">Marissa Clark — 2026</p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs bg-primary-900/40 px-2 py-1 rounded-full">
-              UnitedHealth Group
-            </span>
+            {syncStatus === 'synced' && (
+              <span className="text-[10px] bg-green-500/20 text-green-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                Synced
+              </span>
+            )}
+            <button onClick={() => setActiveTab('settings')}
+              className="p-1.5 rounded-lg hover:bg-primary-700/50 transition-colors"
+              title="Settings & Sync">
+              <Settings2 size={18} className="text-primary-200" />
+            </button>
           </div>
         </div>
       </header>

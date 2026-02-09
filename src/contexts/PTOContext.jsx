@@ -1,31 +1,116 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { DEFAULT_ABSENCES } from '../data/constants';
-import { saveLocalData, loadLocalData } from '../utils/firebase';
+import {
+  initFirebase, signInAnon, saveToFirebase, subscribeToFirebase,
+  loadLocalData, saveLocalData, loadSyncCode, saveSyncCode
+} from '../utils/firebase';
 
 const PTOContext = createContext(null);
 
 const DEFAULT_STATE = {
   absences: DEFAULT_ABSENCES,
   scenarios: [],
-  settings: {
-    syncEnabled: false,
-    syncCode: '',
-  },
 };
 
 export function PTOProvider({ children }) {
   const [data, setData] = useState(() => {
     const stored = loadLocalData();
     if (stored && stored.absences) {
-      return { ...DEFAULT_STATE, ...stored };
+      return { absences: stored.absences, scenarios: stored.scenarios || [] };
     }
     return DEFAULT_STATE;
   });
 
-  // Persist to localStorage on every change
+  const [syncCode, setSyncCodeState] = useState(() => loadSyncCode());
+  const [syncStatus, setSyncStatus] = useState('disconnected'); // disconnected | connecting | synced | error
+  const [lastSynced, setLastSynced] = useState(null);
+  const unsubRef = useRef(null);
+  const skipNextRemoteUpdate = useRef(false);
+
+  // Initialize Firebase on mount
+  useEffect(() => {
+    initFirebase();
+  }, []);
+
+  // Set up sync when syncCode changes
+  useEffect(() => {
+    // Clean up previous subscription
+    if (unsubRef.current) {
+      unsubRef.current();
+      unsubRef.current = null;
+    }
+
+    if (!syncCode) {
+      setSyncStatus('disconnected');
+      return;
+    }
+
+    setSyncStatus('connecting');
+
+    const startSync = async () => {
+      const user = await signInAnon();
+      if (!user) {
+        setSyncStatus('error');
+        return;
+      }
+
+      // Subscribe to remote changes
+      unsubRef.current = subscribeToFirebase(syncCode, (remoteData) => {
+        if (skipNextRemoteUpdate.current) {
+          skipNextRemoteUpdate.current = false;
+          return;
+        }
+        if (remoteData && remoteData.absences) {
+          setData({ absences: remoteData.absences, scenarios: remoteData.scenarios || [] });
+          saveLocalData({ absences: remoteData.absences, scenarios: remoteData.scenarios || [] });
+          setLastSynced(new Date());
+        }
+        setSyncStatus('synced');
+      });
+
+      // Push current local data to Firebase on first connect
+      skipNextRemoteUpdate.current = true;
+      saveToFirebase(syncCode, data);
+      setSyncStatus('synced');
+      setLastSynced(new Date());
+    };
+
+    startSync();
+
+    return () => {
+      if (unsubRef.current) {
+        unsubRef.current();
+        unsubRef.current = null;
+      }
+    };
+  }, [syncCode]);
+
+  // Save to localStorage + Firebase on every data change
   useEffect(() => {
     saveLocalData(data);
+    if (syncCode && syncStatus === 'synced') {
+      skipNextRemoteUpdate.current = true;
+      saveToFirebase(syncCode, data);
+      setLastSynced(new Date());
+    }
   }, [data]);
+
+  const setSyncCode = useCallback((code) => {
+    const trimmed = code.trim();
+    saveSyncCode(trimmed);
+    setSyncCodeState(trimmed);
+  }, []);
+
+  const disconnectSync = useCallback(() => {
+    if (unsubRef.current) {
+      unsubRef.current();
+      unsubRef.current = null;
+    }
+    saveSyncCode('');
+    setSyncCodeState('');
+    setSyncStatus('disconnected');
+    setLastSynced(null);
+  }, []);
 
   const addAbsence = useCallback((absence) => {
     setData(prev => ({
@@ -90,19 +175,16 @@ export function PTOProvider({ children }) {
     });
   }, []);
 
-  const updateSettings = useCallback((updates) => {
-    setData(prev => ({
-      ...prev,
-      settings: { ...prev.settings, ...updates },
-    }));
-  }, []);
-
   return (
     <PTOContext.Provider value={{
       data,
       absences: data.absences,
       scenarios: data.scenarios,
-      settings: data.settings,
+      syncCode,
+      syncStatus,
+      lastSynced,
+      setSyncCode,
+      disconnectSync,
       addAbsence,
       updateAbsence,
       deleteAbsence,
@@ -110,7 +192,6 @@ export function PTOProvider({ children }) {
       updateScenario,
       deleteScenario,
       commitScenario,
-      updateSettings,
     }}>
       {children}
     </PTOContext.Provider>
