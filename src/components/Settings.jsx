@@ -8,7 +8,7 @@ export default function Settings() {
   const [showHelp, setShowHelp] = useState(false);
 
   const statusConfig = {
-    disconnected: { color: 'text-slate-400', bg: 'bg-slate-100', label: 'Not connected', icon: CloudOff },
+    disconnected: { color: 'text-slate-500', bg: 'bg-surface-light', label: 'Not connected', icon: CloudOff },
     connecting: { color: 'text-warning-500', bg: 'bg-warning-50', label: 'Connecting...', icon: RefreshCw },
     synced: { color: 'text-success-600', bg: 'bg-success-50', label: 'Synced', icon: Cloud },
     error: { color: 'text-danger-500', bg: 'bg-danger-50', label: 'Connection error', icon: CloudOff },
@@ -32,14 +32,14 @@ export default function Settings() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-bold text-slate-800">Settings</h2>
-        <p className="text-xs text-slate-500">Manage cross-device sync and app preferences</p>
+        <h2 className="text-lg font-bold text-slate-100">⚙️ Settings</h2>
+        <p className="text-xs text-slate-400">Manage cross-device sync and app preferences</p>
       </div>
 
       {/* Sync Status */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4">
+      <div className="bg-surface rounded-xl border border-surface-border p-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
             <Cloud size={16} className="text-primary-500" />
             Cross-Device Sync
           </h3>
@@ -64,7 +64,7 @@ export default function Settings() {
                 )}
               </div>
               <button onClick={handleDisconnect}
-                className="flex items-center gap-1 px-2 py-1 text-xs text-danger-500 bg-white border border-danger-200 rounded-lg hover:bg-danger-50 transition-colors">
+                className="flex items-center gap-1 px-2 py-1 text-xs text-danger-500 bg-surface border border-danger-200 rounded-lg hover:bg-danger-100 transition-colors">
                 <Unlink size={12} /> Disconnect
               </button>
             </div>
@@ -73,7 +73,7 @@ export default function Settings() {
 
         {syncStatus !== 'synced' && (
           <div className="space-y-3">
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-400">
               Enter a secret sync code to keep your PTO data synced across devices.
               Use the same code on your phone, tablet, and computer.
             </p>
@@ -84,7 +84,7 @@ export default function Settings() {
                 onChange={e => setInputCode(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleConnect()}
                 placeholder="Enter a secret sync code..."
-                className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+                className="flex-1 bg-surface-dark border border-surface-border text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none placeholder:text-slate-500"
               />
               <button onClick={handleConnect}
                 disabled={inputCode.trim().length < 4}
@@ -102,14 +102,14 @@ export default function Settings() {
       </div>
 
       {/* How Sync Works */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4">
+      <div className="bg-surface rounded-xl border border-surface-border p-4">
         <button onClick={() => setShowHelp(!showHelp)}
-          className="w-full text-left text-sm font-semibold text-slate-700 flex items-center gap-2">
+          className="w-full text-left text-sm font-semibold text-slate-200 flex items-center gap-2">
           <Shield size={16} className="text-primary-500" />
           How does sync work?
         </button>
         {showHelp && (
-          <div className="mt-3 space-y-2 text-xs text-slate-500">
+          <div className="mt-3 space-y-2 text-xs text-slate-400">
             <p>
               Your PTO data is stored in a cloud database, keyed by a hash of your sync code.
               Anyone with the same sync code can read and write that data — so pick something
@@ -130,12 +130,12 @@ export default function Settings() {
       </div>
 
       {/* PWA Install Hint */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4">
-        <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-2">
+      <div className="bg-surface rounded-xl border border-surface-border p-4">
+        <h3 className="text-sm font-semibold text-slate-200 flex items-center gap-2 mb-2">
           <Smartphone size={16} className="text-primary-500" />
-          Install on iPhone
+          📱 Install on iPhone
         </h3>
-        <div className="text-xs text-slate-500 space-y-1.5">
+        <div className="text-xs text-slate-400 space-y-1.5">
           <p>To add this app to your iPhone home screen:</p>
           <ol className="list-decimal pl-4 space-y-1">
             <li>Open this page in <strong>Safari</strong></li>
@@ -143,18 +143,18 @@ export default function Settings() {
             <li>Scroll down and tap <strong>"Add to Home Screen"</strong></li>
             <li>Tap <strong>"Add"</strong></li>
           </ol>
-          <p className="text-slate-400 mt-2">
+          <p className="text-slate-500 mt-2">
             The app will appear as an icon on your home screen and open full-screen like a native app.
           </p>
         </div>
       </div>
 
       {/* About */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
-        <p className="text-xs text-slate-400">
+      <div className="bg-surface rounded-xl border border-surface-border p-4 text-center">
+        <p className="text-xs text-slate-500">
           PTO Tracker — Marissa Clark — 2026
         </p>
-        <p className="text-[10px] text-slate-300 mt-1">
+        <p className="text-[10px] text-slate-600 mt-1">
           Data stored locally + Firebase Realtime Database
         </p>
       </div>

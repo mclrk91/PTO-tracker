@@ -32,14 +32,14 @@ export default function UnifiedCalendar() {
     <div className="space-y-4">
       {/* Controls */}
       <div className="flex items-center justify-between">
-        <button onClick={prev} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-          <ChevronLeft size={20} className="text-slate-500" />
+        <button onClick={prev} className="p-2 hover:bg-surface-light rounded-lg transition-colors">
+          <ChevronLeft size={20} className="text-slate-400" />
         </button>
-        <h2 className="text-lg font-bold text-slate-800">
-          {format(currentMonth, 'MMMM yyyy')}
+        <h2 className="text-lg font-bold text-slate-100">
+          🗓️ {format(currentMonth, 'MMMM yyyy')}
         </h2>
-        <button onClick={next} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-          <ChevronRight size={20} className="text-slate-500" />
+        <button onClick={next} className="p-2 hover:bg-surface-light rounded-lg transition-colors">
+          <ChevronRight size={20} className="text-slate-400" />
         </button>
       </div>
 
@@ -53,21 +53,21 @@ export default function UnifiedCalendar() {
         ].map(t => (
           <button key={t.key} onClick={() => t.set(!t.state)}
             className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full border transition-colors ${
-              t.state ? 'bg-white border-slate-200 text-slate-700' : 'bg-slate-100 border-slate-100 text-slate-400 line-through'
+              t.state ? 'bg-surface border-surface-border text-slate-200' : 'bg-surface-dark border-surface-border-subtle text-slate-500 line-through'
             }`}>
-            <div className={`w-2.5 h-2.5 rounded-full ${t.state ? t.color : 'bg-slate-300'}`} />
+            <div className={`w-2.5 h-2.5 rounded-full ${t.state ? t.color : 'bg-slate-600'}`} />
             {t.label}
           </button>
         ))}
       </div>
 
       {/* Calendar */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-surface rounded-xl border border-surface-border overflow-hidden">
         <div className="grid grid-cols-7">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-            <div key={d} className="text-xs font-semibold text-slate-500 text-center py-2 bg-slate-50 border-b border-slate-200">{d}</div>
+            <div key={d} className="text-xs font-semibold text-slate-400 text-center py-2 bg-surface-dark border-b border-surface-border">{d}</div>
           ))}
-          {blanks.map(i => <div key={`b-${i}`} className="min-h-[80px] border-b border-r border-slate-100" />)}
+          {blanks.map(i => <div key={`b-${i}`} className="min-h-[80px] border-b border-r border-surface-border-subtle" />)}
           {days.map(day => {
             const dateStr = format(day, 'yyyy-MM-dd');
             const todayStr = format(new Date(), 'yyyy-MM-dd');
@@ -88,7 +88,7 @@ export default function UnifiedCalendar() {
               events.push({ label: absence.reason || 'PTO', color: 'bg-danger-100 text-danger-600 border-danger-200' });
             }
             if (showHolidays && holiday) {
-              events.push({ label: holiday.name, color: 'bg-slate-100 text-slate-600 border-slate-200' });
+              events.push({ label: holiday.name, color: 'bg-surface-light text-slate-300 border-surface-border' });
             }
             if (showFlex && isG1Flex) {
               const avail = isFlexFridayAvailable(dateStr, absences);
@@ -101,7 +101,7 @@ export default function UnifiedCalendar() {
               events.push({ label: 'G2 Flex', color: 'bg-accent-50 text-accent-400 border-accent-100' });
             }
             if (showFlex && isBlackout && dayOfWeek === 5) {
-              events.push({ label: 'Blackout', color: 'bg-slate-800 text-white border-slate-800' });
+              events.push({ label: 'Blackout', color: 'bg-slate-950 text-white border-slate-800' });
             }
             if (showPaydays && isPayday) {
               events.push({ label: 'Payday', color: 'bg-success-100 text-success-600 border-success-200' });
@@ -109,11 +109,11 @@ export default function UnifiedCalendar() {
 
             return (
               <div key={dateStr}
-                className={`min-h-[80px] border-b border-r border-slate-100 p-1 ${
-                  isWeekend ? 'bg-slate-50/50' : ''
+                className={`min-h-[80px] border-b border-r border-surface-border-subtle p-1 ${
+                  isWeekend ? 'bg-surface-dark/50' : ''
                 } ${isToday ? 'ring-2 ring-inset ring-primary-400' : ''}`}
               >
-                <div className={`text-xs mb-0.5 ${isToday ? 'font-bold text-primary-600' : isWeekend ? 'text-slate-300' : 'text-slate-500'}`}>
+                <div className={`text-xs mb-0.5 ${isToday ? 'font-bold text-primary-400' : isWeekend ? 'text-slate-600' : 'text-slate-400'}`}>
                   {format(day, 'd')}
                 </div>
                 <div className="space-y-0.5">
@@ -136,7 +136,7 @@ export default function UnifiedCalendar() {
             className={`text-xs px-2 py-1 rounded-lg transition-colors ${
               currentMonth.getMonth() === i
                 ? 'bg-primary-600 text-white'
-                : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                : 'bg-surface-light text-slate-400 hover:bg-surface-elevated'
             }`}>
             {format(new Date(2026, i), 'MMM')}
           </button>

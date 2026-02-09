@@ -16,47 +16,47 @@ function AbsenceForm({ initial, onSave, onCancel }) {
   });
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+    <div className="bg-surface border border-surface-border rounded-xl p-4 space-y-3">
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-medium text-slate-600 mb-1">Date</label>
+          <label className="block text-xs font-medium text-slate-300 mb-1">Date</label>
           <input type="date" value={form.date}
             onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="w-full bg-surface-dark border border-surface-border text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600 mb-1">Hours</label>
+          <label className="block text-xs font-medium text-slate-300 mb-1">Hours</label>
           <input type="number" value={form.hours} min="1" max="10" step="1"
             onChange={e => setForm(f => ({ ...f, hours: Number(e.target.value) }))}
-            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+            className="w-full bg-surface-dark border border-surface-border text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600 mb-1">Type</label>
+          <label className="block text-xs font-medium text-slate-300 mb-1">Type</label>
           <select value={form.type}
             onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
-            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none bg-white"
+            className="w-full bg-surface-dark border border-surface-border text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
           >
             <option value="Planned">Planned</option>
             <option value="Unplanned">Unplanned</option>
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600 mb-1">Status</label>
+          <label className="block text-xs font-medium text-slate-300 mb-1">Status</label>
           <select value={form.status}
             onChange={e => setForm(f => ({ ...f, status: e.target.value }))}
-            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none bg-white"
+            className="w-full bg-surface-dark border border-surface-border text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
           >
             <option value="Scheduled">Scheduled</option>
             <option value="Completed">Completed</option>
           </select>
         </div>
         <div>
-          <label className="block text-xs font-medium text-slate-600 mb-1">Pool</label>
+          <label className="block text-xs font-medium text-slate-300 mb-1">Pool</label>
           <select value={form.pool}
             onChange={e => setForm(f => ({ ...f, pool: e.target.value }))}
-            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none bg-white"
+            className="w-full bg-surface-dark border border-surface-border text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
           >
             <option value="granted">Granted PTO</option>
             <option value="purchased">Purchased PTO</option>
@@ -65,15 +65,15 @@ function AbsenceForm({ initial, onSave, onCancel }) {
         </div>
       </div>
       <div>
-        <label className="block text-xs font-medium text-slate-600 mb-1">Reason / Notes</label>
+        <label className="block text-xs font-medium text-slate-300 mb-1">Reason / Notes</label>
         <input type="text" value={form.reason} placeholder="e.g., Vacation, Doctor appt..."
           onChange={e => setForm(f => ({ ...f, reason: e.target.value }))}
-          className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none"
+          className="w-full bg-surface-dark border border-surface-border text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none placeholder:text-slate-500"
         />
       </div>
       <div className="flex gap-2 justify-end">
         <button onClick={onCancel}
-          className="px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+          className="px-3 py-1.5 text-sm text-slate-400 hover:bg-surface-light rounded-lg transition-colors">
           Cancel
         </button>
         <button onClick={() => onSave(form)}
@@ -138,35 +138,35 @@ export default function PTOHistory() {
     <div className="space-y-4">
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white rounded-xl border border-slate-200 p-3 text-center">
-          <p className="text-2xl font-bold text-slate-800">{totals.totalHours}h</p>
-          <p className="text-xs text-slate-400">{totals.totalDays} days used</p>
+        <div className="bg-surface rounded-xl border border-surface-border p-3 text-center">
+          <p className="text-2xl font-bold text-slate-100">{totals.totalHours}h</p>
+          <p className="text-xs text-slate-500">{totals.totalDays} days used</p>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-3 text-center">
-          <p className="text-2xl font-bold text-primary-700">{totals.planned}h</p>
-          <p className="text-xs text-slate-400">Planned</p>
+        <div className="bg-surface rounded-xl border border-surface-border p-3 text-center">
+          <p className="text-2xl font-bold text-primary-400">{totals.planned}h</p>
+          <p className="text-xs text-slate-500">Planned</p>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-3 text-center">
+        <div className="bg-surface rounded-xl border border-surface-border p-3 text-center">
           <p className="text-2xl font-bold text-warning-600">{totals.unplanned}h</p>
-          <p className="text-xs text-slate-400">Unplanned</p>
+          <p className="text-xs text-slate-500">Unplanned</p>
         </div>
       </div>
 
       {/* Pool Breakdown */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4">
-        <h3 className="text-sm font-semibold text-slate-600 mb-2">Usage by Pool</h3>
+      <div className="bg-surface rounded-xl border border-surface-border p-4">
+        <h3 className="text-sm font-semibold text-slate-300 mb-2">📊 Usage by Pool</h3>
         <div className="flex gap-4 text-sm">
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-primary-500" />
-            <span className="text-slate-600">Granted: {totals.granted}h</span>
+            <span className="text-slate-300">Granted: {totals.granted}h</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-accent-500" />
-            <span className="text-slate-600">Purchased: {totals.purchased}h</span>
+            <span className="text-slate-300">Purchased: {totals.purchased}h</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-success-500" />
-            <span className="text-slate-600">Floating: {totals.floating}h</span>
+            <span className="text-slate-300">Floating: {totals.floating}h</span>
           </div>
         </div>
       </div>
@@ -174,16 +174,16 @@ export default function PTOHistory() {
       {/* Filters + Add Button */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <Filter size={14} className="text-slate-400" />
+          <Filter size={14} className="text-slate-500" />
           <select value={filterPool} onChange={e => setFilterPool(e.target.value)}
-            className="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white text-slate-600">
+            className="text-xs border border-surface-border rounded-lg px-2 py-1 bg-surface-dark text-slate-300">
             <option value="all">All Pools</option>
             <option value="granted">Granted</option>
             <option value="purchased">Purchased</option>
             <option value="floating">Floating</option>
           </select>
           <select value={filterType} onChange={e => setFilterType(e.target.value)}
-            className="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white text-slate-600">
+            className="text-xs border border-surface-border rounded-lg px-2 py-1 bg-surface-dark text-slate-300">
             <option value="all">All Types</option>
             <option value="Planned">Planned</option>
             <option value="Unplanned">Unplanned</option>
@@ -211,25 +211,25 @@ export default function PTOHistory() {
               onCancel={() => setEditingId(null)}
             />
           ) : (
-            <div key={a.id} className="bg-white rounded-xl border border-slate-200 p-3 flex items-center justify-between">
+            <div key={a.id} className="bg-surface rounded-xl border border-surface-border p-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-slate-50 flex flex-col items-center justify-center border border-slate-100">
-                  <span className="text-[10px] font-medium text-slate-500 leading-none uppercase">
+                <div className="w-12 h-12 rounded-lg bg-surface-dark flex flex-col items-center justify-center border border-surface-border-subtle">
+                  <span className="text-[10px] font-medium text-slate-400 leading-none uppercase">
                     {format(parseISO(a.date), 'MMM')}
                   </span>
-                  <span className="text-lg font-bold text-slate-800 leading-none">
+                  <span className="text-lg font-bold text-slate-100 leading-none">
                     {format(parseISO(a.date), 'd')}
                   </span>
-                  <span className="text-[9px] text-slate-400 leading-none">
+                  <span className="text-[9px] text-slate-500 leading-none">
                     {format(parseISO(a.date), 'EEE')}
                   </span>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-slate-700">{a.reason || 'No reason'}</p>
+                  <p className="text-sm font-medium text-slate-200">{a.reason || 'No reason'}</p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="text-xs text-slate-400">{a.hours}h</span>
-                    <span className="text-xs text-slate-300">|</span>
-                    <span className="text-xs text-slate-400">{a.type}</span>
+                    <span className="text-xs text-slate-500">{a.hours}h</span>
+                    <span className="text-xs text-slate-600">|</span>
+                    <span className="text-xs text-slate-500">{a.type}</span>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${poolColors[a.pool]}`}>
                       {poolLabels[a.pool]}
                     </span>
@@ -245,11 +245,11 @@ export default function PTOHistory() {
                   {a.status}
                 </span>
                 <button onClick={() => setEditingId(a.id)}
-                  className="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors">
+                  className="p-1.5 text-slate-500 hover:text-primary-400 hover:bg-primary-100 rounded-lg transition-colors">
                   <Pencil size={14} />
                 </button>
                 <button onClick={() => { if (confirm('Delete this absence?')) deleteAbsence(a.id); }}
-                  className="p-1.5 text-slate-400 hover:text-danger-500 hover:bg-danger-50 rounded-lg transition-colors">
+                  className="p-1.5 text-slate-500 hover:text-danger-500 hover:bg-danger-100 rounded-lg transition-colors">
                   <Trash2 size={14} />
                 </button>
               </div>
@@ -257,7 +257,7 @@ export default function PTOHistory() {
           )
         ))}
         {sorted.length === 0 && (
-          <p className="text-center text-slate-400 py-8 text-sm">No absences recorded yet</p>
+          <p className="text-center text-slate-500 py-8 text-sm">No absences recorded yet</p>
         )}
       </div>
     </div>

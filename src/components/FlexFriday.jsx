@@ -14,13 +14,13 @@ function MiniCalendar({ year, month, absences }) {
   const blanks = Array.from({ length: startDay }, (_, i) => i);
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-3">
-      <h4 className="text-sm font-semibold text-slate-700 mb-2 text-center">
+    <div className="bg-surface rounded-xl border border-surface-border p-3">
+      <h4 className="text-sm font-semibold text-slate-200 mb-2 text-center">
         {format(monthStart, 'MMMM yyyy')}
       </h4>
       <div className="grid grid-cols-7 gap-0.5 text-center">
         {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(d => (
-          <div key={d} className="text-[10px] font-medium text-slate-400 py-1">{d}</div>
+          <div key={d} className="text-[10px] font-medium text-slate-500 py-1">{d}</div>
         ))}
         {blanks.map(i => <div key={`b-${i}`} />)}
         {days.map(day => {
@@ -35,14 +35,14 @@ function MiniCalendar({ year, month, absences }) {
           const isWeekend = getDay(day) === 0 || getDay(day) === 6;
 
           let bg = '';
-          let text = 'text-slate-700';
+          let text = 'text-slate-300';
           let ring = '';
 
           if (isHoliday) {
-            bg = 'bg-slate-200';
-            text = 'text-slate-500';
+            bg = 'bg-surface-elevated';
+            text = 'text-slate-400';
           } else if (isBlackout && getDay(day) === 5) {
-            bg = 'bg-slate-800';
+            bg = 'bg-slate-950';
             text = 'text-white';
           } else if (isMarissaFlex) {
             bg = flexAvailable ? 'bg-primary-500' : 'bg-primary-200';
@@ -52,7 +52,7 @@ function MiniCalendar({ year, month, absences }) {
             bg = 'bg-accent-100';
             text = 'text-accent-600';
           } else if (isWeekend) {
-            text = 'text-slate-300';
+            text = 'text-slate-600';
           }
 
           return (
@@ -93,38 +93,38 @@ export default function FlexFriday() {
     <div className="space-y-4">
       {/* Header */}
       <div>
-        <h2 className="text-lg font-bold text-slate-800">2026 Flex Friday Schedule</h2>
-        <p className="text-xs text-slate-500">TM Media — Schedule subject to change based on team volume, staffing, or other considerations</p>
+        <h2 className="text-lg font-bold text-slate-100">⚡ 2026 Flex Friday Schedule</h2>
+        <p className="text-xs text-slate-400">TM Media — Schedule subject to change based on team volume, staffing, or other considerations</p>
       </div>
 
       {/* Legend */}
-      <div className="bg-white rounded-xl border border-slate-200 p-3 flex flex-wrap gap-4">
+      <div className="bg-surface rounded-xl border border-surface-border p-3 flex flex-wrap gap-4">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-primary-500" />
-          <span className="text-xs text-slate-600">Your Flex Day (Group 1)</span>
+          <span className="text-xs text-slate-300">Your Flex Day (Group 1)</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-accent-100 border border-accent-200" />
-          <span className="text-xs text-slate-600">Group 2 Flex Day</span>
+          <span className="text-xs text-slate-300">Group 2 Flex Day</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-slate-800" />
-          <span className="text-xs text-slate-600">Blackout Day</span>
+          <div className="w-4 h-4 rounded bg-slate-950" />
+          <span className="text-xs text-slate-300">Blackout Day</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-slate-200" />
-          <span className="text-xs text-slate-600">Company Holiday</span>
+          <div className="w-4 h-4 rounded bg-surface-elevated" />
+          <span className="text-xs text-slate-300">Company Holiday</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-primary-200" />
-          <span className="text-xs text-slate-600">Your Flex (unavailable)</span>
+          <span className="text-xs text-slate-300">Your Flex (unavailable)</span>
         </div>
       </div>
 
       {/* Groups */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="bg-primary-50 border border-primary-200 rounded-xl p-3">
-          <h3 className="text-sm font-semibold text-primary-700 mb-2">Group 1 (Your Group)</h3>
+          <h3 className="text-sm font-semibold text-primary-400 mb-2">Group 1 (Your Group)</h3>
           <div className="flex flex-wrap gap-1">
             {FLEX_GROUPS.group1.members.map(m => (
               <span key={m} className={`text-xs px-2 py-0.5 rounded-full ${
@@ -153,12 +153,12 @@ export default function FlexFriday() {
       </div>
 
       {/* Upcoming Flex Days */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4">
-        <h3 className="text-sm font-semibold text-slate-600 mb-3">Your Upcoming Flex Fridays</h3>
+      <div className="bg-surface rounded-xl border border-surface-border p-4">
+        <h3 className="text-sm font-semibold text-slate-300 mb-3">📆 Your Upcoming Flex Fridays</h3>
         <div className="space-y-1.5">
           {upcomingFlexDays.slice(0, 10).map(f => (
-            <div key={f.date} className="flex items-center justify-between py-1.5 border-b border-slate-100 last:border-0">
-              <span className="text-sm text-slate-700">{format(parseISO(f.date), 'EEEE, MMMM d')}</span>
+            <div key={f.date} className="flex items-center justify-between py-1.5 border-b border-surface-border-subtle last:border-0">
+              <span className="text-sm text-slate-200">{format(parseISO(f.date), 'EEEE, MMMM d')}</span>
               <span className={`text-xs px-2 py-0.5 rounded-full ${
                 f.available
                   ? 'bg-success-100 text-success-600'
@@ -173,13 +173,13 @@ export default function FlexFriday() {
 
       {/* Reminders */}
       <div className="bg-primary-50 border border-primary-200 rounded-xl p-4">
-        <h3 className="text-sm font-semibold text-primary-700 mb-3 flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-primary-400 mb-3 flex items-center gap-2">
           <Info size={16} />
-          Flex Friday Outlook Invite Reminders
+          📌 Flex Friday Outlook Invite Reminders
         </h3>
         <ul className="space-y-2">
           {FLEX_REMINDERS.map((r, i) => (
-            <li key={i} className="flex items-start gap-2 text-xs text-primary-800">
+            <li key={i} className="flex items-start gap-2 text-xs text-primary-300">
               <AlertCircle size={12} className="flex-shrink-0 mt-0.5 text-primary-500" />
               {r}
             </li>

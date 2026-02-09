@@ -9,7 +9,6 @@ function ScenarioCard({ scenario, absences, onDelete, onCommit, isCompare }) {
   const today = format(new Date(), 'yyyy-MM-dd');
   const scenarioDays = scenario.days || [];
 
-  // Calculate what balances would look like with this scenario's days added
   const simulatedAbsences = useMemo(() => {
     const simAbsences = [...absences];
     const sortedDays = [...scenarioDays].sort((a, b) => a.date.localeCompare(b.date));
@@ -35,13 +34,11 @@ function ScenarioCard({ scenario, absences, onDelete, onCommit, isCompare }) {
   const totalHours = scenarioDays.length * 8;
   const totalDays = scenarioDays.length;
 
-  // Check which flex fridays would be lost
   const lostFlexFridays = useMemo(() => {
     const lost = [];
     scenarioDays.forEach(day => {
       const d = parseISO(day.date);
       const dayOfWeek = getDay(d);
-      // If this day is Mon-Thu, check if there's a flex friday that week
       if (dayOfWeek >= 1 && dayOfWeek <= 4) {
         const friday = addDays(d, 5 - dayOfWeek);
         const fridayStr = format(friday, 'yyyy-MM-dd');
@@ -57,11 +54,11 @@ function ScenarioCard({ scenario, absences, onDelete, onCommit, isCompare }) {
   const headerBg = isCompare ? 'bg-accent-50' : 'bg-primary-50';
 
   return (
-    <div className={`bg-white border ${borderColor} rounded-xl overflow-hidden`}>
+    <div className={`bg-surface border ${borderColor} rounded-xl overflow-hidden`}>
       <div className={`${headerBg} px-4 py-3 flex items-center justify-between`}>
         <div>
-          <h3 className="font-semibold text-slate-800">{scenario.name}</h3>
-          <p className="text-xs text-slate-500">{totalDays} days ({totalHours}h)</p>
+          <h3 className="font-semibold text-slate-100">{scenario.name}</h3>
+          <p className="text-xs text-slate-400">{totalDays} days ({totalHours}h)</p>
         </div>
         <div className="flex gap-1">
           <button onClick={() => onCommit(scenario.id)}
@@ -70,7 +67,7 @@ function ScenarioCard({ scenario, absences, onDelete, onCommit, isCompare }) {
             <CalendarPlus size={12} /> Commit
           </button>
           <button onClick={() => onDelete(scenario.id)}
-            className="p-1 text-slate-400 hover:text-danger-500 rounded-lg transition-colors">
+            className="p-1 text-slate-500 hover:text-danger-500 rounded-lg transition-colors">
             <Trash2 size={14} />
           </button>
         </div>
@@ -79,7 +76,7 @@ function ScenarioCard({ scenario, absences, onDelete, onCommit, isCompare }) {
         {/* Days list */}
         <div className="flex flex-wrap gap-1.5">
           {scenarioDays.sort((a, b) => a.date.localeCompare(b.date)).map(day => (
-            <span key={day.date} className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-lg">
+            <span key={day.date} className="text-xs bg-surface-light text-slate-300 px-2 py-1 rounded-lg">
               {format(parseISO(day.date), 'EEE MMM d')}
             </span>
           ))}
@@ -87,17 +84,17 @@ function ScenarioCard({ scenario, absences, onDelete, onCommit, isCompare }) {
 
         {/* Impact */}
         <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="bg-slate-50 rounded-lg p-2">
-            <p className="text-xs text-slate-400">Granted After</p>
-            <p className="text-sm font-bold text-primary-700">{simBalances.granted.balance.toFixed(1)}h</p>
+          <div className="bg-surface-dark rounded-lg p-2">
+            <p className="text-xs text-slate-500">Granted After</p>
+            <p className="text-sm font-bold text-primary-400">{simBalances.granted.balance.toFixed(1)}h</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-2">
-            <p className="text-xs text-slate-400">Purchased After</p>
+          <div className="bg-surface-dark rounded-lg p-2">
+            <p className="text-xs text-slate-500">Purchased After</p>
             <p className="text-sm font-bold text-accent-500">{simBalances.purchased.balance.toFixed(1)}h</p>
           </div>
-          <div className="bg-slate-50 rounded-lg p-2">
-            <p className="text-xs text-slate-400">Year-End Total</p>
-            <p className="text-sm font-bold text-slate-700">{forecast.totalYearEnd.toFixed(1)}h</p>
+          <div className="bg-surface-dark rounded-lg p-2">
+            <p className="text-xs text-slate-500">Year-End Total</p>
+            <p className="text-sm font-bold text-slate-200">{forecast.totalYearEnd.toFixed(1)}h</p>
           </div>
         </div>
 
@@ -188,17 +185,17 @@ export default function PTOPlanner() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+          <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
             <FlaskConical size={20} className="text-primary-500" />
-            What-If Planner
+            🧪 What-If Planner
           </h2>
-          <p className="text-xs text-slate-500">Model scenarios and see their impact before committing</p>
+          <p className="text-xs text-slate-400">Model scenarios and see their impact before committing</p>
         </div>
         <div className="flex gap-2">
           {scenarios.length >= 2 && (
             <button onClick={() => { setCompareMode(!compareMode); setCompareIds([]); }}
               className={`flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                compareMode ? 'bg-accent-100 text-accent-500' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                compareMode ? 'bg-accent-100 text-accent-500' : 'bg-surface-light text-slate-300 hover:bg-surface-elevated'
               }`}>
               <GitCompare size={14} /> Compare
             </button>
@@ -212,33 +209,33 @@ export default function PTOPlanner() {
 
       {/* Create Form */}
       {showCreate && (
-        <div className="bg-white border border-primary-200 rounded-xl p-4 space-y-3">
+        <div className="bg-surface border border-primary-200 rounded-xl p-4 space-y-3">
           <input type="text" placeholder="Scenario name (e.g., 'Spring Break Cruise')"
             value={newName} onChange={e => setNewName(e.target.value)}
-            className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+            className="w-full bg-surface-dark border border-surface-border text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none placeholder:text-slate-500"
           />
           <div className="flex flex-wrap items-end gap-3">
             <div>
-              <label className="block text-xs text-slate-500 mb-1">Start Date</label>
+              <label className="block text-xs text-slate-400 mb-1">Start Date</label>
               <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                className="bg-surface-dark border border-surface-border text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs text-slate-500 mb-1">End Date</label>
+              <label className="block text-xs text-slate-400 mb-1">End Date</label>
               <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)}
-                className="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none"
+                className="bg-surface-dark border border-surface-border text-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none"
               />
             </div>
             <button onClick={handleAddDateRange}
-              className="flex items-center gap-1 px-3 py-2 text-sm bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">
+              className="flex items-center gap-1 px-3 py-2 text-sm bg-surface-light text-slate-300 rounded-lg hover:bg-surface-elevated transition-colors">
               <Plus size={14} /> Add Range
             </button>
           </div>
 
           {selectedDates.length > 0 && (
             <div>
-              <p className="text-xs text-slate-500 mb-1">Selected days ({selectedDates.length} business days, {selectedDates.length * 8}h):</p>
+              <p className="text-xs text-slate-400 mb-1">Selected days ({selectedDates.length} business days, {selectedDates.length * 8}h):</p>
               <div className="flex flex-wrap gap-1.5">
                 {selectedDates.map(d => (
                   <span key={d.date} className="inline-flex items-center gap-1 text-xs bg-primary-100 text-primary-700 px-2 py-1 rounded-lg">
@@ -254,7 +251,7 @@ export default function PTOPlanner() {
 
           <div className="flex gap-2 justify-end">
             <button onClick={() => { setShowCreate(false); setSelectedDates([]); setNewName(''); }}
-              className="px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+              className="px-3 py-1.5 text-sm text-slate-400 hover:bg-surface-light rounded-lg transition-colors">
               Cancel
             </button>
             <button onClick={handleCreate} disabled={!newName || selectedDates.length === 0}
@@ -267,15 +264,15 @@ export default function PTOPlanner() {
 
       {/* Compare Mode */}
       {compareMode && scenarios.length >= 2 && (
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
-          <p className="text-xs text-slate-500 mb-2">Select 2 scenarios to compare side-by-side:</p>
+        <div className="bg-surface-dark border border-surface-border rounded-xl p-3">
+          <p className="text-xs text-slate-400 mb-2">Select 2 scenarios to compare side-by-side:</p>
           <div className="flex flex-wrap gap-2">
             {scenarios.map(s => (
               <button key={s.id} onClick={() => toggleCompare(s.id)}
                 className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
                   compareIds.includes(s.id)
                     ? 'bg-primary-600 text-white'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:border-primary-300'
+                    : 'bg-surface border border-surface-border text-slate-300 hover:border-primary-400'
                 }`}>
                 {s.name}
               </button>
@@ -305,10 +302,10 @@ export default function PTOPlanner() {
       )}
 
       {scenarios.length === 0 && !showCreate && (
-        <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
-          <FlaskConical size={40} className="text-slate-300 mx-auto mb-3" />
-          <h3 className="text-sm font-semibold text-slate-600 mb-1">No scenarios yet</h3>
-          <p className="text-xs text-slate-400 mb-4">
+        <div className="bg-surface rounded-xl border border-surface-border p-8 text-center">
+          <FlaskConical size={40} className="text-slate-600 mx-auto mb-3" />
+          <h3 className="text-sm font-semibold text-slate-300 mb-1">No scenarios yet</h3>
+          <p className="text-xs text-slate-500 mb-4">
             Create a scenario to model PTO days and see their impact on your balances.
           </p>
           <button onClick={() => setShowCreate(true)}
@@ -320,8 +317,8 @@ export default function PTOPlanner() {
 
       {/* Quick Scenarios */}
       {scenarios.length === 0 && !showCreate && (
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
-          <h3 className="text-sm font-semibold text-slate-600 mb-3">Quick Start Suggestions</h3>
+        <div className="bg-surface rounded-xl border border-surface-border p-4">
+          <h3 className="text-sm font-semibold text-slate-300 mb-3">Quick Start Suggestions</h3>
           <div className="space-y-2">
             <button onClick={() => {
               addScenario({
@@ -331,9 +328,9 @@ export default function PTOPlanner() {
                   { date: '2026-03-18' }, { date: '2026-03-19' }, { date: '2026-03-20' },
                 ],
               });
-            }} className="w-full text-left p-3 bg-slate-50 hover:bg-primary-50 rounded-lg transition-colors border border-slate-100">
-              <p className="text-sm font-medium text-slate-700">Spring Break Cruise — Mar 16-20</p>
-              <p className="text-xs text-slate-400">5 days, 40 hours</p>
+            }} className="w-full text-left p-3 bg-surface-dark hover:bg-primary-50 rounded-lg transition-colors border border-surface-border-subtle">
+              <p className="text-sm font-medium text-slate-200">Spring Break Cruise — Mar 16-20</p>
+              <p className="text-xs text-slate-500">5 days, 40 hours</p>
             </button>
             <button onClick={() => {
               addScenario({
@@ -344,18 +341,18 @@ export default function PTOPlanner() {
                   { date: '2026-04-08' }, { date: '2026-04-09' }, { date: '2026-04-10' },
                 ],
               });
-            }} className="w-full text-left p-3 bg-slate-50 hover:bg-primary-50 rounded-lg transition-colors border border-slate-100">
-              <p className="text-sm font-medium text-slate-700">Surgery + Full Recovery — Apr 2-10</p>
-              <p className="text-xs text-slate-400">7 business days, 56 hours (pre-op + surgery + recovery week)</p>
+            }} className="w-full text-left p-3 bg-surface-dark hover:bg-primary-50 rounded-lg transition-colors border border-surface-border-subtle">
+              <p className="text-sm font-medium text-slate-200">Surgery + Full Recovery — Apr 2-10</p>
+              <p className="text-xs text-slate-500">7 business days, 56 hours (pre-op + surgery + recovery week)</p>
             </button>
             <button onClick={() => {
               addScenario({
                 name: 'Surgery Day Only',
                 days: [{ date: '2026-04-03' }],
               });
-            }} className="w-full text-left p-3 bg-slate-50 hover:bg-primary-50 rounded-lg transition-colors border border-slate-100">
-              <p className="text-sm font-medium text-slate-700">Surgery Day Only — Apr 3</p>
-              <p className="text-xs text-slate-400">1 day, 8 hours</p>
+            }} className="w-full text-left p-3 bg-surface-dark hover:bg-primary-50 rounded-lg transition-colors border border-surface-border-subtle">
+              <p className="text-sm font-medium text-slate-200">Surgery Day Only — Apr 3</p>
+              <p className="text-xs text-slate-500">1 day, 8 hours</p>
             </button>
           </div>
         </div>
