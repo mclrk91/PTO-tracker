@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { format, parseISO, addDays, subDays, getDay, eachDayOfInterval } from 'date-fns';
+import { format, parseISO, addDays, subDays, getDay, eachDayOfInterval, startOfWeek, endOfWeek } from 'date-fns';
 import { usePTO } from '../contexts/PTOContext';
 import { findLongWeekendOpportunities, calculateBalances } from '../utils/ptoCalculations';
 import { PTO_CONFIG, COMPANY_HOLIDAYS } from '../data/constants';
@@ -20,22 +20,19 @@ function MiniCalendar({ opp }) {
   let rangeEnd = allDates[allDates.length - 1];
 
   // Expand to include adjacent weekends
-  // Expand backward: if rangeStart is Mon, include Sat+Sun before
   while (getDay(subDays(rangeStart, 1)) === 0 || getDay(subDays(rangeStart, 1)) === 6) {
     rangeStart = subDays(rangeStart, 1);
   }
-  // Expand forward: if rangeEnd is Fri, include Sat+Sun after
   while (getDay(addDays(rangeEnd, 1)) === 0 || getDay(addDays(rangeEnd, 1)) === 6) {
     rangeEnd = addDays(rangeEnd, 1);
   }
 
-  // Add one workday context on each side
-  const displayStart = subDays(rangeStart, 1);
-  const displayEnd = addDays(rangeEnd, 1);
+  // Show full weeks: one week before through one week after
+  const calStart = startOfWeek(subDays(rangeStart, 7));
+  const calEnd = endOfWeek(addDays(rangeEnd, 7));
+  const days = eachDayOfInterval({ start: calStart, end: calEnd });
 
-  const days = eachDayOfInterval({ start: displayStart, end: displayEnd });
-
-  // Count consecutive off days
+  // Count consecutive off days for explanation
   const offSpan = eachDayOfInterval({ start: rangeStart, end: rangeEnd });
   const offDayCount = offSpan.length;
 
@@ -56,8 +53,11 @@ function MiniCalendar({ opp }) {
 
   return (
     <div className="mt-3 space-y-3">
-      {/* Day boxes */}
-      <div className="flex gap-1">
+      {/* Calendar grid header */}
+      <div className="grid grid-cols-7 gap-0.5">
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+          <div key={d} className="text-[10px] font-semibold text-slate-500 text-center py-1">{d}</div>
+        ))}
         {days.map(day => {
           const dateStr = format(day, 'yyyy-MM-dd');
           const dow = getDay(day);
@@ -65,26 +65,29 @@ function MiniCalendar({ opp }) {
           const isHoliday = holidayDate && dateStr === holidayDate;
           const isPTO = ptoDates.has(dateStr);
 
-          let bgColor = 'bg-surface-dark text-slate-600'; // normal workday
-          if (isPTO) bgColor = 'bg-primary-100 text-primary-400 border-primary-200';
-          else if (isHoliday) bgColor = 'bg-success-100 text-success-600 border-success-500/20';
-          else if (isWeekend) bgColor = 'bg-surface-light text-slate-400';
+          let bgColor = 'bg-surface-dark/50 text-slate-600';
+          if (isPTO) bgColor = 'bg-primary-100 text-primary-400 font-bold';
+          else if (isHoliday) bgColor = 'bg-success-100 text-success-600 font-bold';
+          else if (isWeekend) bgColor = 'bg-surface-light/50 text-slate-500';
 
           return (
-            <div key={dateStr} className={`flex-1 text-center rounded-lg py-2 px-1 border border-transparent ${bgColor}`}>
-              <div className="text-[10px] leading-none mb-1">{format(day, 'EEE')}</div>
-              <div className="text-sm font-bold leading-none">{format(day, 'd')}</div>
-              <div className="text-[9px] leading-none mt-1">{format(day, 'MMM')}</div>
+            <div key={dateStr} className={`text-center rounded-md py-1.5 text-xs ${bgColor}`}>
+              {format(day, 'd')}
             </div>
           );
         })}
       </div>
 
+      {/* Month label */}
+      <p className="text-[10px] text-slate-600 text-center">
+        {format(rangeStart, 'MMMM yyyy')}
+      </p>
+
       {/* Legend */}
       <div className="flex flex-wrap gap-3 text-[10px] text-slate-500">
         <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-primary-100 border border-primary-200" /> PTO day</span>
         <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-success-100 border border-success-500/20" /> Holiday</span>
-        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-surface-light" /> Weekend</span>
+        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-surface-light/50" /> Weekend</span>
       </div>
 
       {/* Explanation */}

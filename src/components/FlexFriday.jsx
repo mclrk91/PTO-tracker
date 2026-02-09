@@ -94,7 +94,6 @@ export default function FlexFriday() {
       {/* Header */}
       <div>
         <h2 className="text-lg font-bold text-slate-100">⚡ 2026 Flex Friday Schedule</h2>
-        <p className="text-xs text-slate-400">TM Media — Schedule subject to change based on team volume, staffing, or other considerations</p>
       </div>
 
       {/* Legend */}
