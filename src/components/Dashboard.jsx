@@ -66,11 +66,11 @@ export default function Dashboard() {
     : null;
 
   const upcomingPTO = absences
-    .filter(a => a.date >= today)
+    .filter(a => a.date > today)
     .sort((a, b) => a.date.localeCompare(b.date));
 
   const pastPTO = absences
-    .filter(a => a.date < today)
+    .filter(a => a.date <= today)
     .sort((a, b) => b.date.localeCompare(a.date));
 
   const pastPTOTotal = pastPTO.reduce((sum, a) => sum + a.hours, 0);
